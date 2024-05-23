@@ -14,82 +14,49 @@ import { db } from "../firebase";
 
 async function readUsers() {
   const querySnapshot = await getDocs(collection(db, "users"));
-  let response = querySnapshot.docs.map((doc) => doc.data());
+  let response = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  }));
   return response;
 }
 
-async function readUserById() {
-  const docRef = doc(db, "collection_1/documento");
-  const querySnapshot = await getDoc(docRef);
-  console.log("querySnapshot.docs", querySnapshot.get());
-  return null;
-}
-
-async function getDocument(coll, id) {
-  const docRef = doc(db, coll, id);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) return docSnap.data();
-  else return null;
-}
-
-async function addUser() {
+async function addUser(name, middle,last, born) {
   try {
-    const docRef = await addDoc(collection(db, "users"), {
-      first: "Alan",
-      middle: "Mathison",
-      last: "Turing",
-      born: 1912,
+    const docRef = await addDoc(collection(db,"users"), {
+      first: name,
+      middle: middle,
+      last: last,
+      born: born,
     });
-
     console.log("Document written with ID: ", docRef.id);
+
   } catch (e) {
     console.error("Error adding document: ", e);
+
   }
 }
 
-async function updateUser() {
-
+async function updateUser(id, updates) {
   try {
-    // Obtener el ID del primer usuario
-    const querySnapshot = await getDocs(collection(db, "users"));
-    const firstUserDoc = querySnapshot.docs[0]; // se puede referenciar por posición 
-    const userId = firstUserDoc.id;
-
-    console.log("ID del primer usuario:", userId);
-
-    // Actualizar el año de nacimiento del primer usuario
-    const userRef = doc(db, "users", userId);
-    await updateDoc(userRef, { born: 1999 });
-    console.log("Document successfully updated");
-
+    const userRef = doc(db, "users", id);
+    await updateDoc(userRef, updates);
+    console.log("User updated");
   } catch (e) {
-    console.error("Error updating document: ", e);
+    console.error("Error updating user: ", e);
   }
-
 }
 
-async function deleteUser() {
-
+async function deleteUser(id) {
   try {
-    // Obtener el ID del primer usuario
-    const querySnapshot = await getDocs(collection(db, "users"));
-    const firstUserDoc = querySnapshot.docs[1]; // se puede referenciar por posición 
-    const userId = firstUserDoc.id;
-
-    console.log("ID del segundo usuario:", userId);
-
-    // Actualizar el año de nacimiento del primer usuario
-    const userRef = doc(db, "users", userId);
+    const userRef = doc(db, "users", id);
     await deleteDoc(userRef);
     
-    console.log("Second user deleted");
+    console.log("User deleted");
 
   } catch (e) {
-    console.error("Error deleting second user: ", e);
+    console.error("Error deleting user: ", e);
   }
-
 }
 
-
-
-export { readUsers, addUser, readUserById, updateUser, deleteUser };
+export { readUsers, addUser, updateUser, deleteUser };
